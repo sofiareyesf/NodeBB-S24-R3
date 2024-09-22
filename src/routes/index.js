@@ -42,6 +42,31 @@ _mounts.main = (app, middleware, controllers) => {
     app.post('/email/unsubscribe/:token', controllers.accounts.settings.unsubscribePost);
 
     app.post('/compose', middleware.applyCSRF, controllers.composer.post);
+
+    // Added pin and unpin post routes
+    router.post('/pin', middleware.ensureLoggedIn, async (req, res, next) => {
+        const { pid } = req.body;
+        const uid = req.user.uid;
+
+        try {
+            await User.pinPost(pid, uid);
+            res.json({ success: true });
+        } catch (err) {
+            next(err);
+        }
+    });
+
+    router.post('/unpin', middleware.ensureLoggedIn, async (req, res, next) => {
+        const { pid } = req.body;
+        const uid = req.user.uid;
+
+        try {
+            await User.unpinPost(pid, uid);
+            res.json({ success: true });
+        } catch (err) {
+            next(err);
+        }
+    });
 };
 
 _mounts.mod = (app, middleware, controllers) => {
